@@ -18,8 +18,8 @@ export default  function Layout({children}) {
     return(<>
     
     <html>
-      <body>
-<div className="flex flex-2 ">
+      <body className="overflow-hidden">
+<div className="flex h-screen">
           {/* Mobile Overlay */}  
           {isOpen && (
             <div className="fixed bg-black opacity-70 inset-0 z-40 lg:hidden "
@@ -76,7 +76,7 @@ export default  function Layout({children}) {
             </header>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto p-6">
+            <main className="flex-1 overflow-y-auto bg-gray-50">
               {children}
             </main>
           </div>

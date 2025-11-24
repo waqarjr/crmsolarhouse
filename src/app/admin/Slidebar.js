@@ -17,13 +17,13 @@ const Slidebar = () => {
   return (<>
   {/* Mobile Overlay */}  
       {isOpen && (
-        <div className="fixed bg-black opacity-70 inset-0 z-40 lg:hidden "
+        <div className="fixed  opacity-70 inset-0 z-40 lg:hidden "
           onClick={() => setIsOpen(false)}/>
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed h-screen lg:static inset-y-0 left-0 z-50 bg-slate-900 text-white transition-all duration-300 ease-in-out
+        className={`fixed h-screen lg:static inset-y-0 left-0 z-50  text-white transition-all duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           ${isCollapsed ? 'lg:w-20' : 'lg:w-64'} lg:translate-x-0 w-64 `}>
         {/* Sidebar Header */}
