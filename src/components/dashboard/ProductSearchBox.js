@@ -6,7 +6,7 @@ const ProductSearchBox = ({ searchTerm, onSearchChange, searchResults, showDropd
   
   const boxRef = useRef(null);
 
-  // 👉 Close dropdown when clicking outside
+  //  Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (boxRef.current && !boxRef.current.contains(event.target)) {
@@ -25,7 +25,8 @@ const ProductSearchBox = ({ searchTerm, onSearchChange, searchResults, showDropd
       <div className="relative">
         <Search className="absolute left-4 top-3.5 text-gray-400" size={20} />
 
-        <input type="text" value={searchTerm} onChange={(e) => onSearchChange(e.target.value)} onFocus={() => searchResults.length > 0 && setShowDropdown(true)} placeholder="Type at least 3 characters to search (e.g., solar panel, inverter, cable)..." className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"/>
+        <input type="text" value={searchTerm} onChange={(e) => onSearchChange(e.target.value)} onFocus={() => searchResults.length > 0 && setShowDropdown(true)} 
+        placeholder="Type at least 3 characters to search (e.g., solar panel, inverter, cable)..." className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg transition"/>
 
         {isLoading && (
           <div className="absolute right-4 top-3.5">
@@ -38,7 +39,7 @@ const ProductSearchBox = ({ searchTerm, onSearchChange, searchResults, showDropd
       {showDropdown && searchResults.length > 0 && (
         <div className="absolute z-50 w-full mt-2 bg-white border-2 border-gray-200 rounded-lg shadow-xl max-h-96 overflow-y-auto">
           {searchResults.map((product) => (
-            <div key={product.id} onClick={() => onProductSelect(product)} className="p-4 hover:bg-blue-100 cursor-pointer border-b border-gray-100 transition">
+            <div key={product.id} onClick={() => onProductSelect(product)} className="p-4 hover:bg-gray-100 cursor-pointer border-b border-gray-100 transition">
               <div className="font-semibold text-gray-800">{product.name}</div>
               <div className="text-sm text-gray-600 mt-1 flex flex-wrap gap-2">
                 {product.sku && <span>SKU: {product.sku}</span>}

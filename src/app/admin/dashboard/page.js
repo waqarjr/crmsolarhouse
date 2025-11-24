@@ -93,21 +93,10 @@ const SolarQuotationSystem = () => {
 
   // Add Product to Quotation
   const addProductToQuotation = (product) => {
-    const newItem = {
-      id: Date.now(),
-      productId: product.id,
-      description: product.name || '',
-      brand: extractBrand(product),
-      model: product.sku || '',
-      qty: 1,
-      rate: parseFloat(product.price) || 0,
-      amount: parseFloat(product.price) || 0
-    };
+    const newItem = { id: Date.now(), productId: product.id, description: product.name || '', brand: extractBrand(product),
+       model: product.sku || '', qty: 1, rate: parseFloat(product.price) || 0, amount: parseFloat(product.price) || 0};
     
-    setQuotationItems([...quotationItems, newItem]);
-    setSearchTerm('');
-    setShowDropdown(false);
-    setSearchResults([]);
+    setQuotationItems([...quotationItems, newItem]); setSearchTerm(''); setShowDropdown(false); setSearchResults([]);
   };
 
   
@@ -238,7 +227,7 @@ const SolarQuotationSystem = () => {
       </div>
 
       {/* PDF Download Modal Component */}
-      <PDFDownloadModal isOpen={showPDFModal} onClose={() => setShowPDFModal(false)} pdfUrl={pdfUrl} fileName={`solar-quotation-${Date.now()}.txt`}/>
+      <PDFDownloadModal isOpen={showPDFModal} onClose={() => setShowPDFModal(false)} pdfUrl={pdfUrl} fileName={`solar-quotation-${Date.now()}.pdf`}/>
     </div>
   );
 };
