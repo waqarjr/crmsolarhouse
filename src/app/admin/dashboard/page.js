@@ -12,6 +12,8 @@ import WarrantyForm from '@/components/dashboard/WarrantyForm';
 import ProductionDetailsForm from '@/components/dashboard/ProductionDetailsForm';
 import PDFDownloadModal from '@/components/dashboard/PDFDownloadModal';
 import { generateQuotationPDF } from "@/utils/generateQuotationPDF";
+import OrderDetailsComponent from '@/components/dashboard/OrderDetailsComponent';
+import Forms from '@/components/dashboard/Forms';
 
 const SolarQuotationSystem = () => {
   // State Management
@@ -174,7 +176,6 @@ const SolarQuotationSystem = () => {
       <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
         {/* Header Component */}
         <QuotationHeader />
-
         <div className="p-4 md:p-8">
           {/* Error Message */}
           {error && (
@@ -182,6 +183,13 @@ const SolarQuotationSystem = () => {
               {error}
             </div>
           )}
+
+          {/* Order Form */}
+          <OrderDetailsComponent/>
+          <div className="mb-6">
+          {/* Forms */}
+          <Forms/>
+          </div>
 
           {/* Product Search Component */}
           <ProductSearchBox searchTerm={searchTerm} onSearchChange={setSearchTerm} searchResults={searchResults} showDropdown={showDropdown} setShowDropdown={setShowDropdown} isLoading={isLoading} onProductSelect={addProductToQuotation} extractBrand={extractBrand}/>

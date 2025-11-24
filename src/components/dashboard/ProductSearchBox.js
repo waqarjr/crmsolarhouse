@@ -14,7 +14,7 @@ const ProductSearchBox = ({ searchTerm, onSearchChange, searchResults, showDropd
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside); 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
