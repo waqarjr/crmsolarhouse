@@ -2,7 +2,12 @@
 import React from 'react';
 import { Calculator } from 'lucide-react';
 
-const TotalsSummary = ({ totalWithoutNetMetering, totalWithNetMetering }) => {
+const TotalsSummary = ({ 
+  totalWithoutNetMetering, 
+  totalWithNetMetering,
+  onUpdateTotalWithoutNetMetering,
+  onUpdateTotalWithNetMetering 
+}) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div className="bg-orange-50 p-6 rounded-xl border-2 border-orange-200">
@@ -10,9 +15,13 @@ const TotalsSummary = ({ totalWithoutNetMetering, totalWithNetMetering }) => {
           <span className="text-lg font-semibold text-gray-700">Total Cost without Net-metering</span>
           <Calculator className="text-orange-600" size={24} />
         </div>
-        <div className="text-3xl font-bold text-orange-600">
-          PKR {totalWithoutNetMetering.toLocaleString()}
-        </div>
+        <input
+          type="number"
+          value={totalWithoutNetMetering}
+          onChange={(e) => onUpdateTotalWithoutNetMetering(parseFloat(e.target.value) || 0)}
+          className="w-full text-3xl font-bold text-orange-600 bg-transparent border-none outline-none"
+          placeholder="0"
+        />
         <p className="text-xs text-gray-600 mt-2">Excludes net-metering related items</p>
       </div>
       
@@ -21,9 +30,13 @@ const TotalsSummary = ({ totalWithoutNetMetering, totalWithNetMetering }) => {
           <span className="text-lg font-semibold text-gray-700">Total Cost with Net-metering</span>
           <Calculator className="text-green-600" size={24} />
         </div>
-        <div className="text-3xl font-bold text-green-600">
-          PKR {totalWithNetMetering.toLocaleString()}
-        </div>
+        <input
+          type="number"
+          value={totalWithNetMetering}
+          onChange={(e) => onUpdateTotalWithNetMetering(parseFloat(e.target.value) || 0)}
+          className="w-full text-3xl font-bold text-green-600 bg-transparent border-none outline-none"
+          placeholder="0"
+        />
         <p className="text-xs text-gray-600 mt-2">Includes all items</p>
       </div>
     </div>

@@ -13,7 +13,6 @@ import ProductionDetailsForm from '@/components/dashboard/ProductionDetailsForm'
 import PDFDownloadModal from '@/components/dashboard/PDFDownloadModal';
 import { generateQuotationPDF } from "@/utils/generateQuotationPDF";
 import OrderDetailsComponent from '@/components/dashboard/OrderDetailsComponent';
-import Forms from '@/components/dashboard/Forms';
 
 const SolarQuotationSystem = () => {
   // State Management
@@ -187,8 +186,6 @@ const SolarQuotationSystem = () => {
           {/* Order Form */}
           <OrderDetailsComponent/>
           <div className="mb-6">
-          {/* Forms */}
-          <Forms/>
           </div>
 
           {/* Product Search Component */}
@@ -206,7 +203,12 @@ const SolarQuotationSystem = () => {
           </div>
 
           {/* Quotation Table Component */}
-          <QuotationTable quotationItems={quotationItems} onUpdateItem={updateItem} onRemoveItem={removeItem}/>
+          <QuotationTable 
+            quotationItems={quotationItems} 
+            onUpdateItem={updateItem} 
+            onRemoveItem={removeItem}
+            setQuotationItems={setQuotationItems}
+          />
 
           {/* Totals Summary Component */}
           <TotalsSummary totalWithoutNetMetering={calculateTotalWithoutNetMetering()} totalWithNetMetering={calculateTotalWithNetMetering()}/>

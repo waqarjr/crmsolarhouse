@@ -53,7 +53,7 @@ const ProductSearchBox = ({ searchTerm, onSearchChange, searchResults, showDropd
       )}
 
       {/* No Results */}
-      {showDropdown && searchTerm.length > 2 && !isLoading && searchResults.length === 0 && (
+      {showDropdown  && !isLoading && searchResults.length === 0 && (
         <div className="absolute z-50 w-full mt-2 bg-white border-2 border-gray-200 rounded-lg shadow-xl p-4 text-center text-gray-500">
           No products found. Try different keywords.
         </div>
