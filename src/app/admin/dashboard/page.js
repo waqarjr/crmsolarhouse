@@ -8,10 +8,7 @@ import QuotationHeader from '@/components/dashboard/QuotationHeader';
 import ProductSearchBox from '@/components/dashboard/ProductSearchBox';
 import QuotationTable from '@/components/dashboard/QuotationTable';
 import TotalsSummary from '@/components/dashboard/TotalsSummary';
-import WarrantyForm from '@/components/dashboard/WarrantyForm';
 import ProductionDetailsForm from '@/components/dashboard/ProductionDetailsForm';
-import PDFDownloadModal from '@/components/dashboard/PDFDownloadModal';
-import { generateQuotationPDF } from "@/utils/generateQuotationPDF";
 import OrderDetailsComponent from '@/components/dashboard/OrderDetailsComponent';
 
 const SolarQuotationSystem = () => {
@@ -24,12 +21,8 @@ const SolarQuotationSystem = () => {
   const [error, setError] = useState(null);
   const [showPDFModal, setShowPDFModal] = useState(false);
   const [pdfUrl, setPdfUrl] = useState('');
+  const [orderDetails, setOrderDetails] = useState(null);
   
-  const [warrantyDetails, setWarrantyDetails] = useState({
-    solarPanelWarranty: '25 years performance warranty of Solar Panels',
-    ongridInverterWarranty: '5 years company (Solis) warranty of Ongrid Solar Inverter',
-    ongridInverterLocalWarranty: '10 years local company (Auxcol) warranty of Ongrid Solar Inverter'
-  });
   
   const [productionDetails, setProductionDetails] = useState({
     monthlyProduction: 3150,
@@ -126,8 +119,12 @@ const SolarQuotationSystem = () => {
     setQuotationItems(quotationItems.filter(item => item.id !== id));
   };
 
+  const [manualTotalWithoutNetMetering, setManualTotalWithoutNetMetering] = useState(null);
+  const [netMeteringCost, setNetMeteringCost] = useState(0);
+
   // Calculate Total Without Net-metering
   const calculateTotalWithoutNetMetering = () => {
+    if (manualTotalWithoutNetMetering !== null) return manualTotalWithoutNetMetering;
     return quotationItems
       .filter(item => !item.description.toLowerCase().includes('net-metering') && 
                      !item.description.toLowerCase().includes('net metering'))
@@ -136,7 +133,8 @@ const SolarQuotationSystem = () => {
 
   // Calculate Total With Net-metering
   const calculateTotalWithNetMetering = () => {
-    return quotationItems.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+    const baseTotal = calculateTotalWithoutNetMetering();
+    return baseTotal + (parseFloat(netMeteringCost) || 0);
   };
 
 
@@ -147,17 +145,23 @@ const SolarQuotationSystem = () => {
     const totals = {
       withoutNetMetering: calculateTotalWithoutNetMetering(),
       withNetMetering: calculateTotalWithNetMetering()
-    };
-
-    const url = generateQuotationPDF({
-      quotationItems,
-      warrantyDetails,
+    }
+    console.log(quotationItems,
       productionDetails,
-      totals // Pass the calculated totals object
-    });
+      totals,
+      orderDetails)
+    ;
 
-    setPdfUrl(url);
-    setShowPDFModal(true);
+    // const url = generateQuotationPDF({
+    //   quotationItems,
+    //   warrantyDetails,
+    //   productionDetails,
+    //   totals, // Pass the calculated totals object
+    //   orderDetails // Pass order and customer information
+    // });
+
+    // setPdfUrl(url);
+    // setShowPDFModal(true);
   };
 
   // Clear All Data
@@ -183,8 +187,8 @@ const SolarQuotationSystem = () => {
             </div>
           )}
 
-          {/* Order Form */}
-          <OrderDetailsComponent/>
+          {/* Order Details Component */}
+          <OrderDetailsComponent onCustomerSelect={setOrderDetails}/>
           <div className="mb-6">
           </div>
 
@@ -211,10 +215,12 @@ const SolarQuotationSystem = () => {
           />
 
           {/* Totals Summary Component */}
-          <TotalsSummary totalWithoutNetMetering={calculateTotalWithoutNetMetering()} totalWithNetMetering={calculateTotalWithNetMetering()}/>
-
-          {/* Warranty Form Component */}
-          <WarrantyForm warrantyDetails={warrantyDetails} onChange={setWarrantyDetails}/>
+          <TotalsSummary 
+            totalWithoutNetMetering={calculateTotalWithoutNetMetering()} 
+            netMeteringCost={netMeteringCost}
+            onUpdateTotalWithoutNetMetering={setManualTotalWithoutNetMetering}
+            onUpdateNetMeteringCost={setNetMeteringCost}
+          />
 
           {/* Production Details Component */}
           <ProductionDetailsForm productionDetails={productionDetails} onChange={setProductionDetails}/>
@@ -222,8 +228,7 @@ const SolarQuotationSystem = () => {
           {/* Final Action Buttons */}
           <div className="flex flex-wrap gap-4">
             <button onClick={generatePDF} className="flex-1 min-w-[200px] bg-blue-600 text-white px-6 py-4 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2">
-              <Download size={20} />
-              Download Quotation PDF
+              Save Quotation
             </button>
           </div>
 
@@ -236,8 +241,6 @@ const SolarQuotationSystem = () => {
         </div>
       </div>
 
-      {/* PDF Download Modal Component */}
-      <PDFDownloadModal isOpen={showPDFModal} onClose={() => setShowPDFModal(false)} pdfUrl={pdfUrl} fileName={`solar-quotation-${Date.now()}.pdf`}/>
     </div>
   );
 };

@@ -178,16 +178,38 @@ const OrderDetailsComponent = ({ onCustomerSelect }) => {
     // Pass customer data to parent component if callback provided
     if (onCustomerSelect) {
       onCustomerSelect({
+        // Customer Info
         id: customer.id,
         name: `${customer.first_name} ${customer.last_name}`,
         email: customer.email,
         phone: billing.phone || '',
+        
+        // Order Details
+        dateCreated,
+        time: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`,
+        status,
+        
+        // Billing Address
         billing: {
+          firstName: billing.first_name || customer.first_name || '',
+          lastName: billing.last_name || customer.last_name || '',
           address: billing.address_1 || '',
           city: billing.city || '',
           state: billing.state || '',
-          postcode: billing.postcode || ''
-        }
+          postcode: billing.postcode || '',
+          phone: billing.phone || '',
+          email: customer.email || ''
+        },
+        
+        // Shipping Address
+        shipping: shippingData.address_1 ? {
+          firstName: shippingData.first_name || '',
+          lastName: shippingData.last_name || '',
+          address: shippingData.address_1 || '',
+          city: shippingData.city || '',
+          state: shippingData.state || '',
+          postcode: shippingData.postcode || ''
+        } : null
       });
     }
   };
@@ -213,7 +235,7 @@ const OrderDetailsComponent = ({ onCustomerSelect }) => {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6">
+    <div className="max-w-6xl mx-auto py-6 sm:py-6">
       <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">Order Details</h2>
 
       {/* First Row – Date/Time + Status */}
@@ -244,7 +266,6 @@ const OrderDetailsComponent = ({ onCustomerSelect }) => {
               </label>
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
-                  <Clock className="absolute left-3 top-3.5 text-gray-400" size={20} />
                   <input 
                     type="number" 
                     min="0" 
@@ -252,7 +273,7 @@ const OrderDetailsComponent = ({ onCustomerSelect }) => {
                     value={hours} 
                     onChange={(e) => setHours(Math.min(23, Math.max(0, Number(e.target.value) || 0)))} 
                     placeholder="HH" 
-                    className="w-full pl-10 pr-3 py-3 border-2 border-gray-300 rounded-lg text-center focus:border-blue-500 focus:outline-none transition" 
+                    className="w-full px-auto py-3 border-2 border-gray-300 rounded-lg text-center focus:border-blue-500 focus:outline-none transition" 
                   />
                 </div>
                 <span className="text-2xl font-bold text-gray-400">:</span>

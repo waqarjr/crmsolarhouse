@@ -2,7 +2,7 @@ import { jsPDF } from 'jspdf';
 
 
 export const generateQuotationPDF = (data) => {
-  const { quotationItems, warrantyDetails, productionDetails, totals } = data;
+  const { quotationItems, warrantyDetails, productionDetails, totals, orderDetails } = data;
   
   const doc = new jsPDF();
   let yPos = 20;
@@ -29,7 +29,78 @@ export const generateQuotationPDF = (data) => {
     month: 'long', 
     day: 'numeric' 
   })}`, 20, yPos);
-  yPos += 15;
+  yPos += 10;
+
+  // Customer & Order Details Section
+  if (orderDetails) {
+    doc.setFillColor(240, 248, 255);
+    doc.rect(14, yPos, 182, 45, 'F');
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(37, 99, 235);
+    doc.text('Customer & Order Information', 18, yPos + 7);
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    
+    const leftCol = 18;
+    const rightCol = 110;
+    let infoY = yPos + 14;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Customer:', leftCol, infoY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(orderDetails.name || 'N/A', leftCol + 22, infoY);
+    
+    infoY += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Email:', leftCol, infoY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(orderDetails.email || 'N/A', leftCol + 22, infoY);
+    
+    infoY += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Phone:', leftCol, infoY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(orderDetails.phone || 'N/A', leftCol + 22, infoY);
+    
+    infoY = yPos + 14;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Date:', rightCol, infoY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(orderDetails.dateCreated || 'N/A', rightCol + 15, infoY);
+    
+    infoY += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Time:', rightCol, infoY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(orderDetails.time || 'N/A', rightCol + 15, infoY);
+    
+    infoY += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Status:', rightCol, infoY);
+    doc.setFont('helvetica', 'normal');
+    doc.text((orderDetails.status || 'pending').toUpperCase(), rightCol + 15, infoY);
+    
+    infoY += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Billing Address:', leftCol, infoY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    infoY += 4;
+    if (orderDetails.billing) {
+      const billing = orderDetails.billing;
+      doc.text(`${billing.address || ''}`, leftCol, infoY);
+      infoY += 3.5;
+      doc.text(`${billing.city || ''}, ${billing.state || ''} ${billing.postcode || ''}`, leftCol, infoY);
+    }
+    
+    yPos += 50;
+  } else {
+    yPos += 5;
+  }
 
   // Quotation Items Section
   doc.setFontSize(16);
