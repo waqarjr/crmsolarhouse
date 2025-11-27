@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { NextResponse } from "next/server";
 
 export async function POST(request) {
   try {
@@ -7,11 +8,11 @@ export async function POST(request) {
 
     // Validate required data
     if (!quotationItems || quotationItems.length === 0) {
-      return Response.json({ success: false, error: "Quotation items are required" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Quotation items are required" }, { status: 400 });
     }
 
     if (!orderDetails || !productionDetails || !totals) {
-      return Response.json({ success: false, error: "Missing required data" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Missing required data" }, { status: 400 });
     }
 
     // Insert into quotations table
@@ -95,10 +96,10 @@ export async function POST(request) {
       );
     }
 
-    return Response.json({ success: true, message: "Quotation saved successfully", quotationId }, { status: 201 });
+    return NextResponse.json({ success: true, message: "Quotation saved successfully", quotationId }, { status: 201 });
 
   } catch (err) {
     console.error("Error saving quotation:", err);
-    return Response.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
