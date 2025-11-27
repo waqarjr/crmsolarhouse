@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { X, Plus, Save, Loader2 } from 'lucide-react';
-import SectionCard from './SectionCard';
 import axios from 'axios';
+
+// SectionCard component (placeholder - replace with your actual component)
+const SectionCard = ({ title, children }) => (
+  <div className="bg-white rounded-lg shadow p-4">
+    <h2 className="text-lg font-bold mb-4">{title}</h2>
+    {children}
+  </div>
+);
 
 export default function HeadOfficeSection() {
   const [heading, setHeading] = useState('');
@@ -25,16 +32,35 @@ export default function HeadOfficeSection() {
       const response = await axios.get('/api/conditions', {
         params: { sectionType: 'headOffice' }
       });
-      
-      if (response.data.success && response.data.data) {
-        const parsedData = response.data.data.map(item => ({
-          ...item,
-          headoffice: JSON.parse(item.headoffice)
-        }));
-        setSavedItems(parsedData);
+
+      const data = response.data.data;
+      console.log('Full response:', data);
+
+      if (data && data.length > 0) {
+        const headOfficeData = data[0].headOffice;
+        console.log('headOffice data:', headOfficeData);
+        
+        // Check if it's a string that needs parsing
+        if (typeof headOfficeData === 'string') {
+          setSavedItems(JSON.parse(headOfficeData));
+        } 
+        // Check if it's already an array
+        else if (Array.isArray(headOfficeData)) {
+          setSavedItems(headOfficeData);
+        }
+        // If it's an object, wrap it in an array
+        else if (headOfficeData && typeof headOfficeData === 'object') {
+          setSavedItems([headOfficeData]);
+        }
+        else {
+          setSavedItems([]);
+        }
+      } else {
+        setSavedItems([]);
       }
     } catch (err) {
       console.error('Error fetching data:', err);
+      setSavedItems([]);
     } finally {
       setLoading(false);
     }
@@ -48,14 +74,24 @@ export default function HeadOfficeSection() {
     setNewItems(newItems.filter((_, i) => i !== index));
   };
 
-  const handleRemoveSaved = async (id) => {
+  const handleRemoveSaved = async (index) => {
     try {
-      await axios.delete('/api/conditions', {
-        data: { id, sectionType: 'headOffice' }
+      // Remove item from the array
+      const updatedItems = savedItems.filter((_, i) => i !== index);
+      
+      // Update the database with the new array
+      const response = await axios.put('/api/conditions', {
+        data: updatedItems,
+        sectionType: 'headOffice'
       });
-      setSavedItems(savedItems.filter(item => item.id !== id));
+
+      if (response.data.success) {
+        // Update local state
+        setSavedItems(updatedItems);
+      }
     } catch (error) {
       console.error('Error deleting item:', error);
+      alert('Failed to delete item. Please try again.');
     }
   };
 
@@ -71,10 +107,11 @@ export default function HeadOfficeSection() {
       
       if (response.data.success) {
         setNewItems([]);
-        getData(); // Refresh the saved items
+        getData(); // Refresh to get the updated list
       }
     } catch (error) {
       console.error('Error saving head office data:', error);
+      alert('Failed to save items. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -160,22 +197,14 @@ export default function HeadOfficeSection() {
             {savedItems.length === 0 ? (
               <li className="text-sm text-gray-500 text-center py-4">No saved items yet</li>
             ) : (
-              savedItems.map((item) => (
-                <li key={item.id} className="flex items-start justify-between bg-gray-50 p-2 rounded">
+              savedItems.map((item, index) => (
+                <li key={index} className="flex items-start justify-between bg-gray-50 p-2 rounded">
                   <div>
-                    {item.headoffice && Array.isArray(item.headoffice) ? (
-                      item.headoffice.map((subItem, idx) => (
-                        <div key={idx} className="mb-2 last:mb-0">
-                          <p className="font-semibold text-sm text-gray-800">{subItem.heading}</p>
-                          <p className="text-sm text-gray-600">{subItem.data}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-gray-500">No data available</p>
-                    )}
+                    <p className="font-semibold text-sm text-gray-800">{item.heading}</p>
+                    <p className="text-sm text-gray-600">{item.data}</p>
                   </div>
-                  <button
-                    onClick={() => handleRemoveSaved(item.id)}
+                  <button 
+                    onClick={() => handleRemoveSaved(index)}
                     className="text-red-500 hover:text-red-700 cursor-pointer"
                   >
                     <X size={18} />
