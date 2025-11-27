@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import { Home, ShoppingCart, Users, BarChart3, Settings,Menu, X } from 'lucide-react';
+import { Home, ShoppingCart,  BarChart3, Settings,Menu, X, Quote, ReceiptText, } from 'lucide-react';
 import Link from "next/link";
 import "../globals.css";
 
@@ -11,7 +11,8 @@ export default  function Layout({children}) {
   const menuItems = [
     { icon: Home, label: 'Dashboard', href: '/admin/dashboard' },
     { icon: ShoppingCart, label: 'Products', href: '/admin/products' },
-    { icon: Users, label: 'Customers', href: '#' },
+    { icon: Quote, label: 'Quotations', href: '/admin/quotation' },
+    { icon : ReceiptText, label: 'Conditions', href: '/admin/conditions' },
     { icon: BarChart3, label: 'Analytics', href: '#' },
     { icon: Settings, label: 'Settings', href: '#' },
   ];
