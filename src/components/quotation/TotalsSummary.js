@@ -2,35 +2,47 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator, Zap } from 'lucide-react';
 
+
 const TotalsSummary = ({ 
-  totalWithoutNetMetering, 
-  netMeteringCost = 0,
-  onUpdateTotalWithoutNetMetering = () => {},
-  onUpdateNetMeteringCost = () => {}
+  quotationItems = [],
+  onTotalsChange = () => {}
 }) => {
 
-  // Local state for base total only
-  const [baseTotal, setBaseTotal] = useState(totalWithoutNetMetering || 0);
+  // Local state
+  const [manualBaseTotal, setManualBaseTotal] = useState(null);
+  const [netMeteringCost, setNetMeteringCost] = useState(0);
 
-  // Update base total when props change
+  // Calculate automatic total from items
+  const automaticBaseTotal = quotationItems
+    .filter(item => !item.description.toLowerCase().includes('net-metering') && 
+                   !item.description.toLowerCase().includes('net metering'))
+    .reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+
+  // Determine effective total (manual override takes precedence)
+  const effectiveBaseTotal = manualBaseTotal !== null ? manualBaseTotal : automaticBaseTotal;
+  
+  // Calculate grand total
+  const grandTotal = effectiveBaseTotal + (parseFloat(netMeteringCost) || 0);
+
+  // Notify parent of changes
   useEffect(() => {
-    setBaseTotal(totalWithoutNetMetering || 0);
-  }, [totalWithoutNetMetering]);
+    onTotalsChange({
+      withoutNetMetering: effectiveBaseTotal,
+      withNetMetering: grandTotal
+    });
+  }, [effectiveBaseTotal, grandTotal]);
 
-  // Total calculation
-  const calculatedTotal = baseTotal + (parseFloat(netMeteringCost) || 0);
-
-  // Base total update handler
+  // Handlers
   const handleBaseTotalChange = (value) => {
-    const newBase = parseFloat(value) || 0;
-    setBaseTotal(newBase);
-    onUpdateTotalWithoutNetMetering(newBase);
+    if (value === '') {
+      setManualBaseTotal(null); // Revert to automatic if cleared
+    } else {
+      setManualBaseTotal(parseFloat(value) || 0);
+    }
   };
 
-  // Net-metering update handler
   const handleNetMeteringChange = (value) => {
-    const newCost = parseFloat(value) || 0;
-    onUpdateNetMeteringCost(newCost);
+    setNetMeteringCost(parseFloat(value) || 0);
   };
 
   return (
@@ -48,12 +60,20 @@ const TotalsSummary = ({
             <span className="text-sm text-gray-500">Enter amount (PKR)</span>
             <input
               type="number"
-              value={baseTotal}
+              value={effectiveBaseTotal}
               onChange={(e) => handleBaseTotalChange(e.target.value)}
               className="mt-1 w-full p-3 text-xl font-bold text-gray-800 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none"
-              placeholder="0"
+              placeholder="Auto-calculated"
             />
           </label>
+          {manualBaseTotal !== null && (
+            <button 
+              onClick={() => setManualBaseTotal(null)}
+              className="text-xs text-orange-600 mt-2 hover:underline"
+            >
+              Reset to Auto-calculation
+            </button>
+          )}
         </div>
 
         {/* Net Metering */}
@@ -90,11 +110,11 @@ const TotalsSummary = ({
           </div>
 
           <div className="p-3 text-3xl font-extrabold text-green-600">
-            PKR {calculatedTotal.toLocaleString('en-PK')}
+            PKR {grandTotal.toLocaleString('en-PK')}
           </div>
 
           <p className="text-xs text-gray-500 text-center mt-6">
-            ({baseTotal.toLocaleString()} + {netMeteringCost.toLocaleString()})
+            ({effectiveBaseTotal.toLocaleString()} + {netMeteringCost.toLocaleString()})
           </p>
         </div>
 

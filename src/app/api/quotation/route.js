@@ -15,91 +15,83 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: "Missing required data" }, { status: 400 });
     }
 
-    // Insert into quotations table
-    const [quotationResult] = await db.query(
+    // Prepare billing and shipping JSON objects
+    const billingJSON = JSON.stringify({
+      firstName: orderDetails.billing.firstName,
+      lastName: orderDetails.billing.lastName,
+      address: orderDetails.billing.address,
+      city: orderDetails.billing.city,
+      state: orderDetails.billing.state,
+      postcode: orderDetails.billing.postcode,
+      phone: orderDetails.billing.phone,
+      email: orderDetails.billing.email
+    });
+
+    const shippingJSON = JSON.stringify({
+      firstName: orderDetails.shipping.firstName,
+      lastName: orderDetails.shipping.lastName,
+      address: orderDetails.shipping.address,
+      city: orderDetails.shipping.city,
+      state: orderDetails.shipping.state,
+      postcode: orderDetails.shipping.postcode,
+      phone: orderDetails.shipping.phone || orderDetails.billing.phone
+    });
+
+    // Insert into quotations table 
+    const [orderResult] = await db.query(
       `INSERT INTO quotations 
       (
-        user_name, email, phone, dateCreated, timeCreated, status,
-        monthlyProduction, annualProduction, annualSaving, backupPeriod,
-        totalWithoutNetMetering, totalWithNetMetering
+        email, phone, date_created, time_created, status,
+        monthly_production, annual_production, annual_saving, backup_period,
+        total_without_net_metering, total_with_net_metering,
+        billing, shipping
       ) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        orderDetails.name,
         orderDetails.email,
         orderDetails.phone,
         orderDetails.dateCreated,
         orderDetails.time,
-        orderDetails.status,
+        orderDetails.status || 'pending',
         productionDetails.monthlyProduction,
         productionDetails.annualProduction,
         productionDetails.annualSaving,
         productionDetails.backupPeriod,
         totals.withoutNetMetering,
         totals.withNetMetering,
+        billingJSON,
+        shippingJSON
       ]
     );
 
-    const quotationId = quotationResult.insertId;
-
-    // Insert billing information
-    await db.query(
-      `INSERT INTO quotation_billing 
-      (quotation_id, firstName, lastName, address, city, state, postcode, phone, email)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        quotationId,
-        orderDetails.billing.firstName,
-        orderDetails.billing.lastName,
-        orderDetails.billing.address,
-        orderDetails.billing.city,
-        orderDetails.billing.state,
-        orderDetails.billing.postcode,
-        orderDetails.billing.phone,
-        orderDetails.billing.email
-      ]
-    );
-
-    // Insert shipping information
-    await db.query(
-      `INSERT INTO quotation_shipping 
-      (quotation_id, firstName, lastName, address, city, state, postcode, phone)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        quotationId,
-        orderDetails.shipping.firstName,
-        orderDetails.shipping.lastName,
-        orderDetails.shipping.address,
-        orderDetails.shipping.city,
-        orderDetails.shipping.state,
-        orderDetails.shipping.postcode,
-        orderDetails.shipping.phone || orderDetails.billing.phone
-      ]
-    );
+    const orderId = orderResult.insertId;
 
     // Insert all quotation items
     for (const item of quotationItems) {
       await db.query(
         `INSERT INTO quotation_items 
-         (quotation_id, productId, description, brand, model, qty, rate, amount)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+         (quotation_id, product_name, quantity, price)
+         VALUES (?, ?, ?, ?)`,
         [
-          quotationId,
-          item.productId,
-          item.description,
-          item.brand,
-          item.model,
-          item.qty,
-          item.rate,
-          item.amount
+          orderId,
+          item.description || item.productName || item.product_name,
+          item.qty || item.quantity,
+          item.rate || item.price
         ]
       );
     }
 
-    return NextResponse.json({ success: true, message: "Quotation saved successfully", quotationId }, { status: 201 });
+    return NextResponse.json({ 
+      success: true, 
+      message: "Order saved successfully", 
+      orderId 
+    }, { status: 201 });
 
   } catch (err) {
-    console.error("Error saving quotation:", err);
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    console.error("Error saving order:", err);
+    return NextResponse.json({ 
+      success: false, 
+      error: err.message 
+    }, { status: 500 });
   }
 }
