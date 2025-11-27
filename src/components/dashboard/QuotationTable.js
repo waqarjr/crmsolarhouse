@@ -92,7 +92,7 @@ const QuotationTable = ({ quotationItems, onUpdateItem, onRemoveItem, setQuotati
                 </div>
                 <button onClick={() => onRemoveItem(item.id)} className="p-2.5 text-red-600 hover:bg-red-50 rounded-lg transition border-2 border-red-200 hover:border-red-300" title="Remove item">
                   <Trash2 size={20} />
-                </button>
+                 </button>
               </div>
 
               {/* Form Fields Grid */}

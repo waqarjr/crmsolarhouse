@@ -1,8 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react';
-import { Download, Save } from 'lucide-react';
 import api from '@/lib/api';
-
+import axios from 'axios';
 // Import all components
 import QuotationHeader from '@/components/dashboard/QuotationHeader';
 import ProductSearchBox from '@/components/dashboard/ProductSearchBox';
@@ -19,8 +18,6 @@ const SolarQuotationSystem = () => {
   const [quotationItems, setQuotationItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [showPDFModal, setShowPDFModal] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState('');
   const [orderDetails, setOrderDetails] = useState(null);
   
   
@@ -31,7 +28,7 @@ const SolarQuotationSystem = () => {
     backupPeriod: 1.27
   });
 
-  // Fetch Products from WooCommerce API using axios
+  // Fetch Products from WooCommerce API 
   const fetchProducts = async (search = '') => {
     if (!search || search.length < 3) return [];
     
@@ -40,10 +37,7 @@ const SolarQuotationSystem = () => {
     
     try {
       const response = await api.get('/products', {
-        params: {
-          search: search,
-          per_page: 10
-        }
+        params: { search, per_page: 10 }
       });
       
       setIsLoading(false);
@@ -139,29 +133,16 @@ const SolarQuotationSystem = () => {
 
 
 
-  // Generate PDF
-  const generatePDF = () => {
+  // Save Data 
+  const insertData = async () => {
     // Calculate totals here before passing to PDF generator
     const totals = {
       withoutNetMetering: calculateTotalWithoutNetMetering(),
       withNetMetering: calculateTotalWithNetMetering()
     }
-    console.log(quotationItems,
-      productionDetails,
-      totals,
-      orderDetails)
-    ;
+    const fetchData = await axios.post('/api/quotation', { quotationItems, productionDetails, totals, orderDetails });
+    console.log(fetchData.data.success);
 
-    // const url = generateQuotationPDF({
-    //   quotationItems,
-    //   warrantyDetails,
-    //   productionDetails,
-    //   totals, // Pass the calculated totals object
-    //   orderDetails // Pass order and customer information
-    // });
-
-    // setPdfUrl(url);
-    // setShowPDFModal(true);
   };
 
   // Clear All Data
@@ -227,7 +208,7 @@ const SolarQuotationSystem = () => {
 
           {/* Final Action Buttons */}
           <div className="flex flex-wrap gap-4">
-            <button onClick={generatePDF} className="flex-1 min-w-[200px] bg-blue-600 text-white px-6 py-4 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2">
+            <button onClick={insertData} className="flex-1 min-w-[200px] bg-blue-600 text-white px-6 py-4 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg flex items-center justify-center gap-2">
               Save Quotation
             </button>
           </div>
