@@ -34,21 +34,16 @@ export default function HeadOfficeSection() {
       });
 
       const data = response.data.data;
-      console.log('Full response:', data);
 
       if (data && data.length > 0) {
         const headOfficeData = data[0].headOffice;
-        console.log('headOffice data:', headOfficeData);
         
-        // Check if it's a string that needs parsing
         if (typeof headOfficeData === 'string') {
           setSavedItems(JSON.parse(headOfficeData));
         } 
-        // Check if it's already an array
         else if (Array.isArray(headOfficeData)) {
           setSavedItems(headOfficeData);
         }
-        // If it's an object, wrap it in an array
         else if (headOfficeData && typeof headOfficeData === 'object') {
           setSavedItems([headOfficeData]);
         }

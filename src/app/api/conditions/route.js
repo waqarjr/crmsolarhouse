@@ -1,51 +1,76 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-// POST - Create or update head office conditions
+const VALID_SECTION_TYPES = [
+  'headOffice', 
+  'warrantyDetails', 
+  'termsConditions', 
+  'customerScope', 
+  'notes', 
+  'behalfOf',
+  'heading'
+];
+
+// POST - Create or update section data
 export async function POST(request) {
     try {
         const body = await request.json();
         const { sectionType, data } = body;
 
-        if (sectionType === 'headOffice') {
-            try {
-                // Check if a headOffice record already exists
-                const [existing] = await db.query("SELECT id, headOffice FROM conditions WHERE headOffice IS NOT NULL LIMIT 1");
-                
-                if (existing.length > 0) {
-                    // Update existing record by appending new items
-                    const currentData = typeof existing[0].headOffice === 'string' 
-                        ? JSON.parse(existing[0].headOffice) 
-                        : existing[0].headOffice;
+        if (!VALID_SECTION_TYPES.includes(sectionType)) {
+            return NextResponse.json({ success: false, error: "Invalid section type" }, { status: 400 });
+        }
+
+        try {
+            // Check if a record already exists for this section
+            const [existing] = await db.query(
+                `SELECT id, ${sectionType} FROM conditions WHERE ${sectionType} IS NOT NULL LIMIT 1`
+            );
+            
+            if (existing.length > 0) {
+                // For heading, just update the value directly
+                if (sectionType === 'heading') {
+                    await db.query(
+                        `UPDATE conditions SET ${sectionType} = ? WHERE id = ?`, 
+                        [data, existing[0].id]
+                    );
+                } else {
+                    // For array sections, append new items
+                    const currentData = typeof existing[0][sectionType] === 'string' 
+                        ? JSON.parse(existing[0][sectionType]) 
+                        : existing[0][sectionType];
                     
                     const updatedData = [...currentData, ...data];
                     
-                    await db.query("UPDATE conditions SET headOffice = ? WHERE id = ?", 
-                        [JSON.stringify(updatedData), existing[0].id]);
-                    
-                    return NextResponse.json({ 
-                        success: true, 
-                        message: "Head office data updated successfully", 
-                        id: existing[0].id 
-                    }, { status: 200 });
-                } else {
-                    // Create new record
-                    const [result] = await db.query("INSERT INTO conditions (headOffice) VALUES (?)", 
-                        [JSON.stringify(data)]);
-                    
-                    return NextResponse.json({ 
-                        success: true, 
-                        message: "Head office data saved successfully", 
-                        id: result.insertId 
-                    }, { status: 201 });
+                    await db.query(
+                        `UPDATE conditions SET ${sectionType} = ? WHERE id = ?`, 
+                        [JSON.stringify(updatedData), existing[0].id]
+                    );
                 }
-            } catch (err) {
-                console.error("Database error:", err);
-                return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+                
+                return NextResponse.json({ 
+                    success: true, 
+                    message: `${sectionType} data updated successfully`, 
+                    id: existing[0].id 
+                }, { status: 200 });
+            } else {
+                // Create new record
+                const value = sectionType === 'heading' ? data : JSON.stringify(data);
+                const [result] = await db.query(
+                    `INSERT INTO conditions (${sectionType}) VALUES (?)`, 
+                    [value]
+                );
+                
+                return NextResponse.json({ 
+                    success: true, 
+                    message: `${sectionType} data saved successfully`, 
+                    id: result.insertId 
+                }, { status: 201 });
             }
+        } catch (err) {
+            console.error("Database error:", err);
+            return NextResponse.json({ success: false, error: err.message }, { status: 500 });
         }
-
-        return NextResponse.json({ success: false, error: "Invalid section type" }, { status: 400 });
 
     } catch (err) {
         console.error("Error saving conditions:", err);
@@ -53,39 +78,33 @@ export async function POST(request) {
     }
 }
 
-// PUT - Update entire head office array (for deleting individual items)
+// PUT - Update entire section data (for deleting individual items or updating heading)
 export async function PUT(request) {
     try {
         const body = await request.json();
         const { sectionType, data } = body;
 
-        if (sectionType === 'headOffice') {
-            try {
-                // Get the existing record
-                const [existing] = await db.query("SELECT id FROM conditions WHERE headOffice IS NOT NULL LIMIT 1");
-                
-                if (existing.length > 0) {
-                    // Update the entire array
-                    await db.query("UPDATE conditions SET headOffice = ? WHERE id = ?", 
-                        [JSON.stringify(data), existing[0].id]);
-                    
-                    return NextResponse.json({ 
-                        success: true, 
-                        message: "Head office data updated successfully" 
-                    }, { status: 200 });
-                } else {
-                    return NextResponse.json({ 
-                        success: false, 
-                        error: "No record found to update" 
-                    }, { status: 404 });
-                }
-            } catch (err) {
-                console.error("Database error:", err);
-                return NextResponse.json({ success: false, error: err.message }, { status: 500 });
-            }
+        if (!VALID_SECTION_TYPES.includes(sectionType)) {
+            return NextResponse.json({ success: false, error: "Invalid section type" }, { status: 400 });
         }
 
-        return NextResponse.json({ success: false, error: "Invalid section type" }, { status: 400 });
+        try {
+            // Get the existing record
+            const [existing] = await db.query(`SELECT id FROM conditions WHERE ${sectionType} IS NOT NULL LIMIT 1`);
+            
+            if (existing.length > 0) {
+                // Update the entire data
+                const value = sectionType === 'heading' ? data : JSON.stringify(data);
+                await db.query(`UPDATE conditions SET ${sectionType} = ? WHERE id = ?`, [value, existing[0].id]);
+                
+                return NextResponse.json({ success: true, message: `${sectionType} data updated successfully` }, { status: 200 });
+            } else {
+                return NextResponse.json({ success: false, error: "No record found to update" }, { status: 404 });
+            }
+        } catch (err) {
+            console.error("Database error:", err);
+            return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+        }
 
     } catch (err) {
         console.error("Error updating conditions:", err);
@@ -93,23 +112,25 @@ export async function PUT(request) {
     }
 }
 
-// GET - Fetch head office conditions
+// GET - Fetch section data
 export async function GET(request) {
     try {
         const sectionType = request.nextUrl.searchParams.get('sectionType');
         
-        if (sectionType === 'headOffice') {
-            try {
-                const [rows] = await db.query("SELECT id, headOffice FROM conditions WHERE headOffice IS NOT NULL ORDER BY id DESC LIMIT 1");
-
-                return NextResponse.json({ success: true, data: rows }, { status: 200 });
-            } catch (err) {
-                console.error("Database error:", err);
-                return NextResponse.json({ success: false, error: err.message }, { status: 500 });
-            }
+        if (!VALID_SECTION_TYPES.includes(sectionType)) {
+            return NextResponse.json({ success: false, error: "Invalid section type" }, { status: 400 });
         }
 
-        return NextResponse.json({ success: false, error: "Invalid section type" }, { status: 400 });
+        try {
+            const [rows] = await db.query(
+                `SELECT id, ${sectionType} FROM conditions WHERE ${sectionType} IS NOT NULL ORDER BY id DESC LIMIT 1`
+            );
+
+            return NextResponse.json({ success: true, data: rows }, { status: 200 });
+        } catch (err) {
+            console.error("Database error:", err);
+            return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+        }
 
     } catch (err) {
         console.error("Error fetching conditions:", err);
@@ -117,28 +138,31 @@ export async function GET(request) {
     }
 }
 
-// DELETE - Remove entire head office record (optional - kept for backwards compatibility)
+// DELETE - Remove entire section record (optional - kept for backwards compatibility)
 export async function DELETE(request) {
     try {
         const body = await request.json();
         const { id, sectionType } = body;
 
-        if (sectionType === 'headOffice') {
-            try {
-                const [result] = await db.query("DELETE FROM conditions WHERE id = ? AND headOffice IS NOT NULL", [id]);
-
-                if (result.affectedRows === 0) {
-                    return NextResponse.json({ success: false, error: "Record not found" }, { status: 404 });
-                }
-
-                return NextResponse.json({ success: true, message: "Head office data deleted successfully" }, { status: 200 });
-            } catch (err) {
-                console.error("Database error:", err);
-                return NextResponse.json({ success: false, error: err.message }, { status: 500 });
-            }
+        if (!VALID_SECTION_TYPES.includes(sectionType)) {
+            return NextResponse.json({ success: false, error: "Invalid section type" }, { status: 400 });
         }
 
-        return NextResponse.json({ success: false, error: "Invalid section type" }, { status: 400 });
+        try {
+            const [result] = await db.query(
+                `DELETE FROM conditions WHERE id = ? AND ${sectionType} IS NOT NULL`, 
+                [id]
+            );
+
+            if (result.affectedRows === 0) {
+                return NextResponse.json({ success: false, error: "Record not found" }, { status: 404 });
+            }
+
+            return NextResponse.json({ success: true, message: `${sectionType} data deleted successfully` }, { status: 200 });
+        } catch (err) {
+            console.error("Database error:", err);
+            return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+        }
 
     } catch (err) {
         console.error("Error deleting condition:", err);

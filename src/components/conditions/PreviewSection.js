@@ -1,13 +1,82 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Loader2 } from 'lucide-react';
 
-export default function PreviewSection({
-  headOffice,
-  warrantyDetails,
-  termsConditions,
-  customerScope,
-  notes,
-  behalfOf
-}) {
+export default function PreviewSection() {
+  const [data, setData] = useState({
+    headOffice: [],
+    warrantyDetails: [],
+    termsConditions: [],
+    customerScope: [],
+    notes: [],
+    behalfOf: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        // Fetch all sections in parallel
+        const sectionTypes = [
+          'headOffice', 
+          'warrantyDetails', 
+          'termsConditions', 
+          'customerScope', 
+          'notes', 
+          'behalfOf'
+        ];
+
+        const results = await Promise.all(
+          sectionTypes.map(type => 
+            axios.get('/api/conditions', { params: { sectionType: type } })
+          )
+        );
+
+        const newData = {};
+        
+        results.forEach((response, index) => {
+          const type = sectionTypes[index];
+          const responseData = response.data.data;
+          
+          if (responseData && responseData.length > 0) {
+            const value = responseData[0][type];
+            if (typeof value === 'string') {
+              newData[type] = JSON.parse(value);
+            } else if (Array.isArray(value)) {
+              newData[type] = value;
+            } else if (value && typeof value === 'object') {
+              newData[type] = [value];
+            } else {
+              newData[type] = [];
+            }
+          } else {
+            newData[type] = [];
+          }
+        });
+
+        setData(newData);
+      } catch (error) {
+        console.error('Error fetching preview data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12 bg-white rounded-lg shadow-lg">
+        <Loader2 size={32} className="animate-spin text-blue-500" />
+        <span className="ml-3 text-lg text-gray-600">Loading preview...</span>
+      </div>
+    );
+  }
+
+  const { headOffice, warrantyDetails, termsConditions, customerScope, notes, behalfOf } = data;
+  
   const hasData = headOffice.length > 0 || warrantyDetails.length > 0 || 
                   termsConditions.length > 0 || customerScope.length > 0 || 
                   notes.length > 0 || behalfOf.length > 0;
