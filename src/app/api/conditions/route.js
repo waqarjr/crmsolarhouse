@@ -117,6 +117,12 @@ export async function GET(request) {
     try {
         const sectionType = request.nextUrl.searchParams.get('sectionType');
         
+        if (!sectionType) {
+            // Fetch all conditions
+            const [rows] = await db.query("SELECT * FROM conditions LIMIT 1");
+            return NextResponse.json({ success: true, data: rows }, { status: 200 });
+        }
+        
         if (!VALID_SECTION_TYPES.includes(sectionType)) {
             return NextResponse.json({ success: false, error: "Invalid section type" }, { status: 400 });
         }

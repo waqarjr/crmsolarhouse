@@ -1,6 +1,15 @@
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
+export async function GET() {
+  try {
+    const [rows] = await db.query("SELECT * FROM quotations ORDER BY date_created DESC, time_created DESC");
+    return NextResponse.json(rows);
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -81,17 +90,10 @@ export async function POST(request) {
       );
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: "Order saved successfully", 
-      orderId 
-    }, { status: 201 });
+    return NextResponse.json({ success: true, message: "Order saved successfully", orderId }, { status: 201 });
 
   } catch (err) {
     console.error("Error saving order:", err);
-    return NextResponse.json({ 
-      success: false, 
-      error: err.message 
-    }, { status: 500 });
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
