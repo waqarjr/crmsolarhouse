@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { Search } from 'lucide-react';
-import api from '@/lib/api';
+import axios from 'axios';
 
 const ProductSearchBox = ({ onProductSelect }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,7 +29,7 @@ const ProductSearchBox = ({ onProductSelect }) => {
     setIsLoading(true);
     
     try {
-      const response = await api.get('/products', {
+      const response = await axios.get('/api/products', {
         params: { search, per_page: 10 }
       });
       

@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, Calendar, Clock } from 'lucide-react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import api from '@/lib/api';
+import axios from 'axios';
 
 const OrderDetailsComponent = ({ onCustomerSelect }) => {
   const [dateCreated, setDateCreated] = useState('');
@@ -47,7 +47,9 @@ const OrderDetailsComponent = ({ onCustomerSelect }) => {
     fetchTimeout.current = setTimeout(async () => {
       setIsLoadingCustomers(true);
       try {
-        const response = await api.get(`/customers?search=${encodeURIComponent(searchTerm)}`);
+        const response = await axios.get('/api/customers', {
+          params: { search: searchTerm }
+        });
         setCustomers(response.data);
         setShowCustomerDropdown(true);
       } catch (error) {
