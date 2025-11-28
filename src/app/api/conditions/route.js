@@ -115,6 +115,28 @@ export async function PUT(request) {
 // GET - Fetch section data
 export async function GET(request) {
     try {
+        
+            // const authHeader = request.headers.get("authorization");
+
+    // if (!authHeader || !authHeader.startsWith("Basic ")) {
+    //   return new Response("Unauthorized", { status: 401 });
+    // }
+
+    // // Decode Base64 credentials
+    // const base64Credentials = authHeader.split(" ")[1];
+    // const credentials = Buffer.from(base64Credentials, "base64").toString("ascii");
+    // const [username, password] = credentials.split(":");
+
+    // // Validate credentials
+    // if (
+    //   username !== process.env.API_USERNAME ||
+    //   password !== process.env.API_PASSWORD
+    // ) {
+    //   return new Response("Forbidden - Invalid credentials", { status: 403 });
+    // }
+
+    // console.log("User verified successfully");
+
         const sectionType = request.nextUrl.searchParams.get('sectionType');
         
         if (!sectionType) {

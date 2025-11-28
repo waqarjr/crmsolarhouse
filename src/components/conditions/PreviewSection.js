@@ -18,20 +18,9 @@ export default function PreviewSection() {
       setLoading(true);
       try {
         // Fetch all sections in parallel
-        const sectionTypes = [
-          'headOffice', 
-          'warrantyDetails', 
-          'termsConditions', 
-          'customerScope', 
-          'notes', 
-          'behalfOf'
-        ];
+        const sectionTypes = ['headOffice', 'warrantyDetails', 'termsConditions', 'customerScope', 'notes', 'behalfOf'];
 
-        const results = await Promise.all(
-          sectionTypes.map(type => 
-            axios.get('/api/conditions', { params: { sectionType: type } })
-          )
-        );
+        const results = await Promise.all(sectionTypes.map(type => axios.get('/api/conditions', { params: { sectionType: type } })));
 
         const newData = {};
         

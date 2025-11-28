@@ -12,12 +12,6 @@ import PreviewSection from '@/components/conditions/PreviewSection';
 
 export default function ConditionsPage() {
   // State arrays
-  const [headOffice, setHeadOffice] = useState([]);
-  const [warrantyDetails, setWarrantyDetails] = useState([]);
-  const [termsConditions, setTermsConditions] = useState([]);
-  const [customerScope, setCustomerScope] = useState([]);
-  const [notes, setNotes] = useState([]);
-  const [behalfOf, setBehalfOf] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
 
   return (
@@ -52,14 +46,7 @@ export default function ConditionsPage() {
 
         {/* Preview Section */}
         {showPreview && (
-          <PreviewSection
-            headOffice={headOffice}
-            warrantyDetails={warrantyDetails}
-            termsConditions={termsConditions}
-            customerScope={customerScope}
-            notes={notes}
-            behalfOf={behalfOf}
-          />
+          <PreviewSection />
         )}
       </div>
     </div>
