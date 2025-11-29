@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# CRM Solar House
 
-## Getting Started
+A comprehensive Customer Relationship Management (CRM) system designed for Solar House operations. This application is built with modern web technologies to streamline administrative tasks, manage products, generate quotations, and handle file organization efficiently.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Admin Dashboard**: Centralized hub for monitoring and managing system activities.
+- **Product Management**: Create, update, and manage solar products and inventory.
+- **Quotation System**: Generate professional quotations for clients (integrated with PDF generation).
+- **File Management**: Organize and manage important documents and files.
+- **Conditions Management**: Manage terms and conditions or specific operational parameters.
+- **Responsive Design**: Built with Tailwind CSS for a seamless experience across devices.
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **UI Library**: [React 19](https://react.dev/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Form Handling**: [Formik](https://formik.org/) & [Yup](https://github.com/jquense/yup)
+- **PDF Generation**: [jsPDF](https://github.com/parallax/jsPDF)
+- **Database**: MySQL (via `mysql2`)
+- **HTTP Client**: [Axios](https://axios-http.com/)
+
+## 📦 Getting Started
+
+### Prerequisites
+
+- **Node.js**: Ensure you have Node.js installed (v18+ recommended).
+- **MySQL**: A running MySQL database instance.
+
+### Installation
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone <repository-url>
+    cd crmsolarhouse
+    ```
+
+2.  **Install dependencies:**
+
+    ```bash
+    npm install
+    # or
+    yarn install
+    # or
+    pnpm install
+    ```
+
+3.  **Environment Configuration:**
+
+    Create a `.env.local` file in the root directory and configure your database connection and other environment variables.
+
+    ```env
+    # Example .env.local
+    DB_HOST=localhost
+    DB_USER=root
+    DB_PASSWORD=yourpassword
+    DB_NAME=crmsolarhouse
+    ```
+
+4.  **Run the development server:**
+
+    ```bash
+    npm run dev
+    ```
+
+    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 📂 Project Structure
+
+```
+crmsolarhouse/
+├── src/
+│   ├── app/
+│   │   ├── admin/          # Admin panel routes (Dashboard, Products, Quotations, etc.)
+│   │   ├── api/            # API routes for backend logic
+│   │   ├── layout.js       # Root layout
+│   │   └── page.js         # Home page
+│   ├── components/         # Reusable UI components
+│   ├── lib/                # Library code (e.g., database connections)
+│   └── utils/              # Utility functions
+├── public/                 # Static assets
+├── .env.local              # Environment variables (not committed)
+├── package.json            # Project dependencies and scripts
+└── README.md               # Project documentation
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📜 Scripts
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- `npm run dev`: Starts the development server.
+- `npm run build`: Builds the application for production.
+- `npm start`: Starts the production server.
+- `npm run lint`: Runs ESLint to check for code quality issues.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🤝 Contributing
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Contributions are welcome! Please feel free to submit a Pull Request.
